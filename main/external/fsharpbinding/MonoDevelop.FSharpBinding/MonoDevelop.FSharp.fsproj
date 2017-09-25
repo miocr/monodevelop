@@ -127,6 +127,7 @@
     <Compile Include="ScriptDebugging.fs" />
     <Compile Include="FSharpProjectCompilerOptions.fs" />
     <Compile Include="TypeSignatureHelp.fs" />
+    <Compile Include="StatusBarTooltip.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="pango-sharp" />
