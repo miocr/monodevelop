@@ -17,8 +17,8 @@ DEP[0]=md-addins
 DEP_NAME[0]=MDADDINS
 DEP_PATH[0]=${top_srcdir}/../md-addins
 DEP_MODULE[0]=git@github.com:xamarin/md-addins.git
-DEP_NEEDED_VERSION[0]=612453baa9a0faea49aa554be49c01c2e0542bf3
-DEP_BRANCH_AND_REMOTE[0]="d15-6 origin/d15-6"
+DEP_NEEDED_VERSION[0]=4af5522c8089057ddbb64b78cc278a2e9ec4524c
+DEP_BRANCH_AND_REMOTE[0]="d15-6-welcome-screen-pointer-fix origin/d15-6-welcome-screen-pointer-fix"
 
 # heap-shot
 DEP[1]=heap-shot
