@@ -37,6 +37,7 @@ namespace MonoDevelop.Ide.BuildOutputView
 {
 	class BuildOutputViewContent : ViewContent
 	{
+		public event EventHandler<TaskSelectedArgs> TaskSelected;
 		FilePath filename;
 		BuildOutputWidget control;
 
@@ -46,6 +47,7 @@ namespace MonoDevelop.Ide.BuildOutputView
 			this.ContentName = filename;
 			control = new BuildOutputWidget (filename);
 			control.FileSaved += FileNameChanged;
+			control.TaskSelected += (s, e) => TaskSelected?.Invoke (s, e);
 		}
 
 		public BuildOutputViewContent (BuildOutput buildOutput)
@@ -53,6 +55,7 @@ namespace MonoDevelop.Ide.BuildOutputView
 			ContentName = $"{GettextCatalog.GetString ("Build Output")} {DateTime.Now.ToString ("hh:mm:ss")}.binlog";
 			control = new BuildOutputWidget (buildOutput, ContentName);
 			control.FileSaved += FileNameChanged;
+			control.TaskSelected += (s, e) => TaskSelected?.Invoke (s, e);
 		}
 
 		void FileNameChanged (object sender, string newName)

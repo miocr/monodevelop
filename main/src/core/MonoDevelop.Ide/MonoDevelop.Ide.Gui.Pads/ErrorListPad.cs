@@ -361,6 +361,21 @@ namespace MonoDevelop.Ide.Gui.Pads
 			} while (view.Model.IterNext (ref iter));
 		}
 
+		TaskListEntry GetTaskListEntryByTitle (string title, string project)
+		{
+			TreeIter iter;
+			if (!view.Model.GetIterFirst (out iter))
+				return null;
+			do {
+				var t = (TaskListEntry)view.Model.GetValue (iter, DataColumns.Task);
+				if (t.Message == title && t.GetProjectWithExtension () == project) {
+					return t;
+				}
+			} while (view.Model.IterNext (ref iter));
+
+			return null;
+		}
+
 		void LoadColumnsVisibility ()
 		{
 			var columns = PropertyService.Get (restoreID, string.Join (";", Enumerable.Repeat ("TRUE", view.Columns.Length)));
@@ -556,12 +571,17 @@ namespace MonoDevelop.Ide.Gui.Pads
 				store.SetValue (iter, DataColumns.Read, true);
 				TaskListEntry task = store.GetValue (iter, DataColumns.Task) as TaskListEntry;
 				if (task != null) {
-					TaskService.ShowStatus (task);
-					task.JumpToPosition ();
-					TaskService.Errors.CurrentLocationTask = task;
-					IdeApp.Workbench.ActiveLocationList = TaskService.Errors;
+					JumpToTask (task);
 				}
 			}
+		}
+
+		void JumpToTask (TaskListEntry task)
+		{
+			TaskService.ShowStatus (task);
+			task.JumpToPosition ();
+			TaskService.Errors.CurrentLocationTask = task;
+			IdeApp.Workbench.ActiveLocationList = TaskService.Errors;
 		}
 
 		void AddColumns ()
@@ -958,6 +978,12 @@ namespace MonoDevelop.Ide.Gui.Pads
 		{
 			if (buildOutputViewContent == null) {
 				buildOutputViewContent = new BuildOutputViewContent (buildOutput);
+				buildOutputViewContent.TaskSelected += (s, e) => {
+					var task = GetTaskListEntryByTitle (e.Text, e.Project);
+					if (task != null) {
+						JumpToTask (task);
+					}
+				};
 				buildOutputDoc = IdeApp.Workbench.OpenDocument (buildOutputViewContent, true);
 				buildOutputDoc.Closed += BuildOutputDocClosed;
 			} else if (buildOutputDoc != null) {

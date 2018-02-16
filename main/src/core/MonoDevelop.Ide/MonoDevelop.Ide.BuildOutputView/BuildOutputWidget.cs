@@ -43,6 +43,18 @@ using MonoDevelop.Ide.Tasks;
 
 namespace MonoDevelop.Ide.BuildOutputView
 {
+	class TaskSelectedArgs : EventArgs
+	{
+		public string Text { get; private set; }
+		public string Project { get; private set; }
+
+		public TaskSelectedArgs (string text, string project)
+		{
+			Text = text;
+			Project = project;
+		}
+	}
+
 	class BuildOutputWidget : VBox, IPathedDocument
 	{
 		TreeView treeView;
@@ -58,6 +70,7 @@ namespace MonoDevelop.Ide.BuildOutputView
 		Label resultInformLabel;
 		List<BuildOutputNode> treeBuildOutputNodes;
 		BuildOutputDataSearch search;
+		BuildOutputNode selectedNode;
 
 		public string ViewContentName { get; private set; }
 		public BuildOutput BuildOutput { get; private set; }
@@ -65,6 +78,7 @@ namespace MonoDevelop.Ide.BuildOutputView
 
 		public event EventHandler<string> FileSaved;
 		public event EventHandler<DocumentPathChangedEventArgs> PathChanged;
+		public event EventHandler<TaskSelectedArgs> TaskSelected;
 
 		public BuildOutputWidget (BuildOutput output, string viewContentName)
 		{
@@ -191,6 +205,25 @@ namespace MonoDevelop.Ide.BuildOutputView
 			scrolledWindow = new ScrollView { BorderVisible = false };
 			scrolledWindow.Content = treeView;
 
+			treeView.ButtonPressed += delegate (object sender, ButtonEventArgs e) {
+				TreePosition tmpTreePos;
+				RowDropPosition tmpRowDrop;
+				if ((e.Button == PointerButton.Right) && treeView.GetDropTargetRow (e.X, e.Y, out tmpRowDrop, out tmpTreePos)) {
+					treeView.SelectRow (tmpTreePos);
+
+					if (IsSelectableTask (selectedNode)) {
+						var menu = new ContextMenu ();
+						var jump = new ContextMenuItem (GettextCatalog.GetString ("_Jump to {0}", selectedNode.NodeType.ToString ()));
+						jump.Clicked += (send, evt) => {
+							var project = selectedNode.InverseSearchFirstNode (BuildOutputNodeType.Project);
+							TaskSelected?.Invoke (this, new TaskSelectedArgs (selectedNode.Message, project.Message));
+						};
+						menu.Add (jump);
+						menu.Show (treeView.ToGtkWidget (), (int) e.X,(int) e.Y);
+					}
+				}
+			};
+
 			PackStart (scrolledWindow, expand: true, fill: true);
 		}
 
@@ -233,10 +266,14 @@ namespace MonoDevelop.Ide.BuildOutputView
 			}
 		}
 
+		bool IsSelectableTask (BuildOutputNode node)
+		{
+			return node.NodeType == BuildOutputNodeType.Error || node.NodeType == BuildOutputNodeType.Warning;
+		}
 
 		void TreeView_SelectionChanged (object sender, EventArgs e)
 		{
-			var selectedNode = treeView.SelectedRow as BuildOutputNode;
+			selectedNode = treeView.SelectedRow as BuildOutputNode;
 			if (selectedNode == null)
 				return;
 

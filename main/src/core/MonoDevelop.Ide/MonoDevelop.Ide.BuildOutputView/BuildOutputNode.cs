@@ -111,6 +111,27 @@ namespace MonoDevelop.Ide.BuildOutputView
 			});
 		}
 
+		public BuildOutputNode InverseSearchFirstNode (BuildOutputNodeType type, string search = null)
+		{
+			if (type == NodeType) {
+				if (search == Message || search == null) {
+					return this;
+				} else {
+					//We don't want deep recursive into children, change to next item
+					return null;
+				}
+			}
+
+			//iterating into children
+			if (Parent != null) {
+				var parent = Parent.InverseSearchFirstNode (type, search);
+				if (parent != null) {
+					return parent;
+				}
+			}
+			return null;
+		}
+
 		public bool HasChildren => Children != null && Children.Count > 0;
 	}
 
