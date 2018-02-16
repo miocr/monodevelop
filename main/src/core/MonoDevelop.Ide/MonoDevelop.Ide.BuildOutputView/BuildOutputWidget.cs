@@ -205,26 +205,29 @@ namespace MonoDevelop.Ide.BuildOutputView
 			scrolledWindow = new ScrollView { BorderVisible = false };
 			scrolledWindow.Content = treeView;
 
-			treeView.ButtonPressed += delegate (object sender, ButtonEventArgs e) {
-				TreePosition tmpTreePos;
-				RowDropPosition tmpRowDrop;
-				if ((e.Button == PointerButton.Right) && treeView.GetDropTargetRow (e.X, e.Y, out tmpRowDrop, out tmpTreePos)) {
-					treeView.SelectRow (tmpTreePos);
-
-					if (IsSelectableTask (selectedNode)) {
-						var menu = new ContextMenu ();
-						var jump = new ContextMenuItem (GettextCatalog.GetString ("_Jump to {0}", selectedNode.NodeType.ToString ()));
-						jump.Clicked += (send, evt) => {
-							var project = selectedNode.InverseSearchFirstNode (BuildOutputNodeType.Project);
-							TaskSelected?.Invoke (this, new TaskSelectedArgs (selectedNode.Message, project.Message));
-						};
-						menu.Add (jump);
-						menu.Show (treeView.ToGtkWidget (), (int) e.X,(int) e.Y);
-					}
-				}
-			};
+			treeView.ButtonPressed += OnButtonPressed;
 
 			PackStart (scrolledWindow, expand: true, fill: true);
+		}
+
+		internal void OnButtonPressed (object sender, ButtonEventArgs e)
+		{
+			TreePosition tmpTreePos;
+			RowDropPosition tmpRowDrop;
+			if ((e.Button == PointerButton.Right) && treeView.GetDropTargetRow (e.X, e.Y, out tmpRowDrop, out tmpTreePos)) {
+				treeView.SelectRow (tmpTreePos);
+
+				if (IsSelectableTask (selectedNode)) {
+					var menu = new ContextMenu ();
+					var jump = new ContextMenuItem (GettextCatalog.GetString ("_Jump to {0}", selectedNode.NodeType.ToString ()));
+					jump.Clicked += (send, evt) => {
+						var project = selectedNode.InverseSearchFirstNode (BuildOutputNodeType.Project);
+						TaskSelected?.Invoke (this, new TaskSelectedArgs (selectedNode.Message, project.Message));
+					};
+					menu.Add (jump);
+					menu.Show (treeView.ToGtkWidget (), (int)e.X, (int)e.Y);
+				}
+			}
 		}
 
 		internal Task GoToError (string description, string project)
@@ -465,7 +468,7 @@ namespace MonoDevelop.Ide.BuildOutputView
 			buttonSearchForward.Clicked -= FindNext;
 			searchEntry.Entry.Changed -= FindFirst;
 			searchEntry.Entry.Activated -= FindNext;
-
+			treeView.ButtonPressed -= OnButtonPressed;
 			base.Dispose(disposing);
 		}
 
