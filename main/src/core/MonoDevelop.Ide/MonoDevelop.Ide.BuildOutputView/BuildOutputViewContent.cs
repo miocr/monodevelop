@@ -47,7 +47,7 @@ namespace MonoDevelop.Ide.BuildOutputView
 			this.ContentName = filename;
 			control = new BuildOutputWidget (filename);
 			control.FileSaved += FileNameChanged;
-			control.TaskSelected += (s, e) => TaskSelected?.Invoke (s, e);
+			control.TaskSelected += OnTaskSelected;
 		}
 
 		public BuildOutputViewContent (BuildOutput buildOutput)
@@ -55,7 +55,12 @@ namespace MonoDevelop.Ide.BuildOutputView
 			ContentName = $"{GettextCatalog.GetString ("Build Output")} {DateTime.Now.ToString ("hh:mm:ss")}.binlog";
 			control = new BuildOutputWidget (buildOutput, ContentName);
 			control.FileSaved += FileNameChanged;
-			control.TaskSelected += (s, e) => TaskSelected?.Invoke (s, e);
+			control.TaskSelected += OnTaskSelected;
+		}
+
+		public void OnTaskSelected (object sender, TaskSelectedArgs args)
+		{
+			TaskSelected?.Invoke (sender, args);
 		}
 
 		void FileNameChanged (object sender, string newName)
@@ -95,6 +100,8 @@ namespace MonoDevelop.Ide.BuildOutputView
 
 		public override void Dispose ()
 		{
+			control.FileSaved -= FileNameChanged;
+			control.TaskSelected -= OnTaskSelected;
 			control.Dispose ();
 			base.Dispose ();
 		}
