@@ -95,34 +95,5 @@ namespace MonoDevelop.Ide
 
 			Assert.That (matches, Is.EqualTo (100));
 		}
-
-		[Test]
-		public void BuildOutputNode_InverseSearchFirstNode ()
-		{
-			var result = GetTestNodes ();
-			var node = result [result.Count - 1].InverseSearchFirstNode (BuildOutputNodeType.Build);
-			Assert.IsNotNull (node);
-			node = result [result.Count - 1].InverseSearchFirstNode (BuildOutputNodeType.Build, BuildMessage);
-			Assert.IsNotNull (node);
-			node = result [result.Count - 1].InverseSearchFirstNode (BuildOutputNodeType.Build, BuildMessage + " ");
-			Assert.IsNull (node);
-		}
-
-		List<BuildOutputNode> GetTestNodes ()
-		{
-			var result = new List<BuildOutputNode> ();
-			var buildNode = new BuildOutputNode () { NodeType = BuildOutputNodeType.Build, Message = BuildMessage };
-			result.Add (buildNode);
-			var projectNode = new BuildOutputNode () { NodeType = BuildOutputNodeType.Project, Message = ProjectMessage };
-			result.Add (projectNode);
-			buildNode.AddChild (projectNode);
-			var targetNode = new BuildOutputNode () { NodeType = BuildOutputNodeType.Target, Message = "Csc" };
-			result.Add (targetNode);
-			projectNode.AddChild (targetNode);
-			var alertNode = new BuildOutputNode () { NodeType = BuildOutputNodeType.Error, Message = ErrorMessage };
-			result.Add (alertNode);
-			targetNode.AddChild (alertNode);
-			return result;
-		}
 	}
 }
