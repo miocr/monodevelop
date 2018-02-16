@@ -36,10 +36,6 @@ namespace MonoDevelop.Ide
 {
 	public class BuildOutputTests : IdeTestBase
 	{
-		const string BuildMessage = "Building";
-		const string ProjectMessage = "ProjectError.csproj";
-		const string ErrorMessage = "ErrorMessage";
-
 		[Test]
 		public void ProgressMonitor_Instantiation ()
 		{
