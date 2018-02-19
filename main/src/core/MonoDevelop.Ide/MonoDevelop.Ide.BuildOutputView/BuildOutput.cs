@@ -324,46 +324,7 @@ namespace MonoDevelop.Ide.BuildOutputView
 		{
 			var node = pos as BuildOutputNode;
 			if (node != null) {
-				switch (column) {
-				case 0: // Image
-					switch (node.NodeType) {
-					case BuildOutputNodeType.Build:
-						return buildIcon;
-					case BuildOutputNodeType.Diagnostics:
-					case BuildOutputNodeType.Message:
-						return messageIcon;
-					case BuildOutputNodeType.Error:
-						return errorIcon;
-					case BuildOutputNodeType.Parameters:
-						return folderIcon;
-					case BuildOutputNodeType.Project:
-						return projectIcon;
-					case BuildOutputNodeType.Target:
-						return targetIcon;
-					case BuildOutputNodeType.Task:
-						return taskIcon;
-					case BuildOutputNodeType.Warning:
-						return warningIcon;
-					}
-
-					return ImageService.GetIcon (Ide.Gui.Stock.Empty);
-				case 1: // Text
-					bool toplevel = node.Parent == null;
-					StringBuilder markup = new StringBuilder ();
-
-					if (toplevel) {
-						markup.AppendFormat ("<b>{0}</b>", GLib.Markup.EscapeText (node.Message));
-					} else {
-						markup.Append (node.Message);
-					}
-
-					// Timing information
-					if (node.HasChildren) {
-						markup.AppendFormat ("    <span color=\"#999999\">{0}</span>", GLib.Markup.EscapeText (node.GetDurationAsString ()));
-					}
-
-					return markup.ToString ();
-				}
+				return node;
 			}
 
 			return null;
